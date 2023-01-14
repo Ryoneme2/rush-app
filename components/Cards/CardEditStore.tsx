@@ -10,8 +10,17 @@ import Swal from 'sweetalert2';
 import { Switch } from '@nextui-org/react';
 import DatePicker from 'sassy-datepicker';
 import dayjs from 'dayjs';
+import { RESTAURANT, RESTAURANT_CATEGORIES } from '@prisma/client';
 
-export default function CardEditStore({ restaurantData, restaurantCategory }) {
+export default function CardEditStore({
+  restaurantData,
+  restaurantCategory,
+}: {
+  restaurantData: RESTAURANT & {
+    RESTAURANT_CATEGORIES: RESTAURANT_CATEGORIES;
+  };
+  restaurantCategory: RESTAURANT_CATEGORIES[];
+}) {
   const {
     register,
     handleSubmit,
@@ -78,8 +87,11 @@ export default function CardEditStore({ restaurantData, restaurantCategory }) {
     }
 
     data.isCanclePolicy = checkedPolicy;
+    data.fixDate = datePick;
 
     let JSONdata = JSON.stringify([data]);
+
+    console.log(data);
 
     const endpoint = '/api/restaurant_members/upsert';
 
@@ -94,10 +106,11 @@ export default function CardEditStore({ restaurantData, restaurantCategory }) {
       body: JSONdata,
     };
 
-    let response;
     try {
-      response = await fetch(endpoint, options);
-      history.back();
+      const response = await fetch(endpoint, options);
+      console.log(response);
+
+      // history.back();
     } catch (error) {
       const MySwal = withReactContent(Swal);
       MySwal.fire({
@@ -224,7 +237,7 @@ export default function CardEditStore({ restaurantData, restaurantCategory }) {
                     <span className='text-red-600'>*</span>
                   </label>
                   <input
-                    id='lat'
+                    id='address'
                     type='text'
                     className='border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150'
                     defaultValue={restaurantData?.ADDRESS ?? ''}
@@ -244,7 +257,7 @@ export default function CardEditStore({ restaurantData, restaurantCategory }) {
                     Service Fee (%) <span className='text-red-600'>*</span>
                   </label>
                   <input
-                    id='lat'
+                    id='fee'
                     type='number'
                     min='0'
                     max='100.0'
@@ -291,12 +304,17 @@ export default function CardEditStore({ restaurantData, restaurantCategory }) {
                       กำหนดวันที่จอง
                     </label>
                     <input
-                      id='lat'
+                      id='fixDate'
                       type='text'
                       className='border-0 px-3 py-3 cursor-pointer placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150'
-                      defaultValue={restaurantData?.ADDRESS ?? ''}
+                      defaultValue={
+                        dayjs(restaurantData?.FIX_DATE).format('DD/MM/YYYY') ??
+                        dayjs(datePick).format('DD/MM/YYYY')
+                      }
                       value={dayjs(datePick).format('DD/MM/YYYY')}
                       disabled
+                      required={isFixTime}
+                      {...register('fixDate')}
                     />
                     {isDPOpen && (
                       <DatePicker

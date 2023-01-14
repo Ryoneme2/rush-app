@@ -26,6 +26,7 @@ export async function upsertRestaurantMember(req, res) {
           IS_CANCLE_POLICY: data.isCanclePolicy ?? true,
           IS_ACTIVE: data.isActive ?? true,
           MODIFY_DATETIME: new Date(),
+          FIX_DATE: data.fixDate ?? null,
         },
         create: {
           RESTAURANT_CATEGORIES_ID: parseInt(data.restaurantCatagoriesId),
@@ -40,6 +41,7 @@ export async function upsertRestaurantMember(req, res) {
           IS_CANCLE_POLICY: data.isCanclePolicy ?? true,
           IS_ACTIVE: data.isActive ?? true,
           MODIFY_DATETIME: new Date(),
+          FIX_DATE: data.fixDate ?? null,
         },
       });
 

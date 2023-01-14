@@ -146,7 +146,7 @@ model CONSENT_MANAGEMENT {
 }
 
 model RESTAURANT {
-  ID                       Int      @id @unique @default(sequence())
+  ID                       Int       @id @unique @default(sequence())
   RESTAURANT_CATEGORIES_ID Int
   NAME                     String
   DESCRIPTION              String
@@ -156,10 +156,11 @@ model RESTAURANT {
   WORK_HOURS_DESCRIPTION   String
   CONDITION                String?
   FEE                      Float?
-  IS_CANCLE_POLICY         Boolean? @default(true)
+  FIX_DATE                 DateTime?
+  IS_CANCLE_POLICY         Boolean?  @default(true)
   IS_ACTIVE                Boolean
-  CREATE_DATETIME          DateTime @default(now())
-  MODIFY_DATETIME          DateTime @updatedAt
+  CREATE_DATETIME          DateTime  @default(now())
+  MODIFY_DATETIME          DateTime  @updatedAt
 
   RESTAURANT_CATEGORIES  RESTAURANT_CATEGORIES    @relation(fields: [RESTAURANT_CATEGORIES_ID], references: [ID])
   RESTAURANT_GALLERY     RESTAURANT_GALLERY[]
