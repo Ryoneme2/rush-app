@@ -36,7 +36,6 @@ export async function getServerSideProps(context) {
     where: { NAME: process.env.TYPE_OWNER_NAME },
   });
   await prisma.$disconnect();
-  // เลือกทุก property
   const res = await prisma.aCCOUNT_PROFILE.findFirst({
     where: {
       ID: parseInt(user.ID),
