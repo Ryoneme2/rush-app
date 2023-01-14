@@ -25,6 +25,7 @@ import withReactContent from 'sweetalert2-react-content';
 import { PrismaClient } from '@prisma/client';
 import dayjs from 'dayjs';
 import clsx from 'clsx';
+import { Session } from 'next-auth';
 
 export async function getServerSideProps(ctx) {
   const prisma = new PrismaClient();
@@ -136,7 +137,11 @@ function Restaurant({
   const MySwal = withReactContent(Swal);
 
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session } = useSession() as {
+    data: Session & {
+      tokenUser: string;
+    };
+  };
   const [a, setA] = useState(modifiedData);
 
   const prevRef = useRef(null);

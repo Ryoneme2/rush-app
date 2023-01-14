@@ -9,9 +9,16 @@ import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { Divider } from '@nextui-org/react';
 import Swal from 'sweetalert2';
+import { Session } from 'next-auth';
 
 export default function Summary() {
-  const { data: session } = useSession();
+  const { data: session } = useSession() as {
+    data: Session & {
+      tokenUser: string;
+      fname: string;
+      lname: string;
+    };
+  };
 
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [term, setTermModalOpen] = useState(false);

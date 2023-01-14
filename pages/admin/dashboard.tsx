@@ -1,97 +1,107 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState } from 'react';
 
 // components
 
-import CardLineChart from "components/Cards/CardLineChart";
-import CardBarChart from "components/Cards/CardBarChart";
-import CardPageVisits from "components/Cards/CardPageVisits";
-import CardSocialTraffic from "components/Cards/CardSocialTraffic";
-import DatePicker from "sassy-datepicker";
-import { Menu, MenuItem, MenuButton } from "@szhsin/react-menu";
-import "@szhsin/react-menu/dist/core.css";
-import randomColor from "randomcolor";
+import CardLineChart from 'components/Cards/CardLineChart';
+import CardBarChart from 'components/Cards/CardBarChart';
+import CardPageVisits from 'components/Cards/CardPageVisits';
+import CardSocialTraffic from 'components/Cards/CardSocialTraffic';
+import DatePicker from 'sassy-datepicker';
+import { Menu, MenuItem, MenuButton } from '@szhsin/react-menu';
+import '@szhsin/react-menu/dist/core.css';
+import randomColor from 'randomcolor';
 
 // layout for page
-import Router, { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
-import { getSession } from "next-auth/react";
-import { PrismaClient } from "@prisma/client";
+import Router, { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
+import { PrismaClient } from '@prisma/client';
 
-import Admin from "layouts/Admin";
-import CardStats from "components/Cards/CardStats";
-import { useForm } from "react-hook-form";
-import withReactContent from "sweetalert2-react-content";
-import Swal from "sweetalert2";
-import { verify } from "jsonwebtoken"
+import Admin from 'layouts/Admin';
+import CardStats from 'components/Cards/CardStats';
+import { useForm } from 'react-hook-form';
+import withReactContent from 'sweetalert2-react-content';
+import Swal from 'sweetalert2';
+import { verify } from 'jsonwebtoken';
+import { Session } from 'next-auth';
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
-  const session = await getSession(context)
+  const session = (await getSession(context)) as Session & {
+    tokenUser: string;
+    fname: string;
+    lname: string;
+  };
 
   if (!session) {
-    return { redirect: { destination: '/auth/admin' } }
+    return { redirect: { destination: '/auth/admin' } };
   }
 
   const secretKey: string = process.env.JWT_SECRET;
-  const user = verify(session.tokenUser, secretKey)
+  const user = verify(session.tokenUser, secretKey);
   const adminType = await prisma.aCCOUNT_TYPE.findFirst({
-    where: { NAME: process.env.TYPE_ADMIN_NAME }
-  })
-  await prisma.$disconnect()
+    where: { NAME: process.env.TYPE_ADMIN_NAME },
+  });
+  await prisma.$disconnect();
 
   const ownerType = await prisma.aCCOUNT_TYPE.findFirst({
-    where: { NAME: process.env.TYPE_OWNER_NAME }
-  })
-  await prisma.$disconnect()
+    where: { NAME: process.env.TYPE_OWNER_NAME },
+  });
+  await prisma.$disconnect();
   // เลือกทุก property
   const res = await prisma.aCCOUNT_PROFILE.findFirst({
     where: {
       ID: parseInt(user.ID),
       OR: [
         { ACCOUNT_TYPE_ID: adminType.ID },
-        { ACCOUNT_TYPE_ID: ownerType.ID }
-      ]
+        { ACCOUNT_TYPE_ID: ownerType.ID },
+      ],
     },
   });
 
+  await prisma.$disconnect();
 
-  await prisma.$disconnect()
-
-  const dataRole = await JSON.parse(JSON.stringify(res))
+  const dataRole = await JSON.parse(JSON.stringify(res));
 
   if (!dataRole) {
-    return { redirect: { destination: '/' } }
+    return { redirect: { destination: '/' } };
   }
 
-  let response
-  let result
+  let response;
+  let result;
   try {
-
     response = await prisma.rESTAURANT_MEMBERS.findMany({
       where: { ACCOUNT_PROFILE_ID: parseInt(user.ID), IS_ACTIVE: true },
       include: {
-        RESTAURANT: true
+        RESTAURANT: true,
       },
-      orderBy: [{ ID: "asc" }],
+      orderBy: [{ ID: 'asc' }],
     });
 
-    await prisma.$disconnect()
+    await prisma.$disconnect();
     result = await JSON.parse(JSON.stringify(response));
-
   } catch (error) {
-    const MySwal = withReactContent(Swal)
-    MySwal.fire({ title: "Error", text: error, icon: "error", confirmButtonText: "close" })
+    const MySwal = withReactContent(Swal);
+    MySwal.fire({
+      title: 'Error',
+      text: error,
+      icon: 'error',
+      confirmButtonText: 'close',
+    });
   }
 
   return { props: { dropDownList: result } };
 }
 
 export function Dashboard(props) {
-
   const router = useRouter();
   const [datepickerInput, setDatepickerInput] = useState(
     // new Date(new Date().setHours(0, 0, 0, 0))
-    new Date(new Date(new Date().setUTCHours(17,0,0,0)).setUTCDate(new Date().getUTCDate() - 1))
+    new Date(
+      new Date(new Date().setUTCHours(17, 0, 0, 0)).setUTCDate(
+        new Date().getUTCDate() - 1
+      )
+    )
   );
   const [dataChart, setDataChart] = useState([]);
   const [dateChart, setDateChart] = useState([]);
@@ -103,9 +113,13 @@ export function Dashboard(props) {
   const { data: session } = useSession({
     required: true,
     onUnauthenticated() {
-      Router.push('/')
+      Router.push('/');
     },
-  });
+  }) as {
+    data: Session & {
+      tokenUser: string;
+    };
+  };
 
   const {
     register,
@@ -130,50 +144,40 @@ export function Dashboard(props) {
       );
     }
 
-
-
     arrDate.map((dataDate) => {
-
-
       DayMatch.push({
         Day: dataDate,
-        Data: data.filter(
-          (value) => {
-            let dataA = new Date(value.BOOK_DATETIME)
-            let A = new Date(dataA.setDate(dataA.getDate() + 1))
-              .toISOString()
-              .substring(0, 10)
-            let dataB = new Date(dataDate)
-            let B = new Date(dataB.setDate(dataB.getDate() + 1))
-              .toISOString()
-              .substring(0, 10)
-            return A == B
-            // new Date(value.BOOK_DATETIME).toISOString().substring(0, 10) ==
-            // dataDate
-          }
-        ),
+        Data: data.filter((value) => {
+          let dataA = new Date(value.BOOK_DATETIME);
+          let A = new Date(dataA.setDate(dataA.getDate() + 1))
+            .toISOString()
+            .substring(0, 10);
+          let dataB = new Date(dataDate);
+          let B = new Date(dataB.setDate(dataB.getDate() + 1))
+            .toISOString()
+            .substring(0, 10);
+          return A == B;
+          // new Date(value.BOOK_DATETIME).toISOString().substring(0, 10) ==
+          // dataDate
+        }),
       });
     });
-    let dataF = new Date(arrDate[0])
+    let dataF = new Date(arrDate[0]);
     let f = new Date(dataF.setDate(dataF.getDate() + 1))
       .toISOString()
-      .substring(0, 10)
-    let dateL = new Date(arrDate[arrDate.length - 1])
+      .substring(0, 10);
+    let dateL = new Date(arrDate[arrDate.length - 1]);
     let l = new Date(dateL.setDate(dateL.getDate() + 1))
       .toISOString()
-      .substring(0, 10)
+      .substring(0, 10);
     setFDate(f);
     setLDate(l);
-
-
 
     DayMatch.map((DM) => {
       filted.push({
         Day: DM.Day,
         data: DM.Data.map((dataData) =>
           area.map((dataA) => {
-
-
             return {
               Zone: dataA.NAME,
               cnt: dataData.BOOKING_TABLES.filter(
@@ -205,20 +209,17 @@ export function Dashboard(props) {
       )
     );
 
-
     filted.map((d) => {
-      let dataA = new Date(d.Day)
-      let A
+      let dataA = new Date(d.Day);
+      let A;
       A = new Date(dataA.setDate(dataA.getDate() + 1))
         .toISOString()
-        .substring(0, 10)
-      passDate.push(A)
-
+        .substring(0, 10);
+      passDate.push(A);
     });
 
     setDateChart(passDate);
     setDataChart(passData);
-
   }
 
   const onSubmit = async (data) => {
@@ -229,23 +230,22 @@ export function Dashboard(props) {
       endDate.setDate(endDate.getDate() + parseInt(data.endDate))
     );
 
-
     let JSONdata = JSON.stringify(data);
 
-    const endpoint = "/api/booking/chart/getcountbyrid";
+    const endpoint = '/api/booking/chart/getcountbyrid';
 
     const options = {
-      method: "POST",
+      method: 'POST',
 
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
 
       body: JSONdata,
     };
 
-    let response
-    let result
+    let response;
+    let result;
     try {
       response = await fetch(endpoint, options);
       result = await response.json();
@@ -256,17 +256,20 @@ export function Dashboard(props) {
         parseInt(data.endDate),
         result.Area
       );
-      setBookingCount(result.Card[0]?._count?.ID ?? "0");
-      setTotalPrice(result.Card[0]?._sum?.TOTAL_PRICE ?? "0");
-
+      setBookingCount(result.Card[0]?._count?.ID ?? '0');
+      setTotalPrice(result.Card[0]?._sum?.TOTAL_PRICE ?? '0');
     } catch (error) {
-      const MySwal = withReactContent(Swal)
-      MySwal.fire({ title: "Error", text: error, icon: "error", confirmButtonText: "close" })
+      const MySwal = withReactContent(Swal);
+      MySwal.fire({
+        title: 'Error',
+        text: error,
+        icon: 'error',
+        confirmButtonText: 'close',
+      });
     }
-
   };
 
-  let element
+  let element;
 
   if (session) {
     element = (
@@ -286,21 +289,20 @@ export function Dashboard(props) {
           </div>
         </div> */}
         <form
-          id="restaurantForm"
-          name="restaurantForm"
+          id='restaurantForm'
+          name='restaurantForm'
           onSubmit={handleSubmit(onSubmit)}
-          className="px-4"
+          className='px-4'
         >
-          <div className="relative flex flex-col min-w-0 break-words bg-white rounded mb-6 xl:mb-0 shadow-lg">
-            <div className="flex-auto p-4">
-              <div className="flex flex-wrap">
-                <div className="relative w-full pr-4 max-w-full flex-grow flex-1">
-                  <div className="flex flex-col lg:flex-row justify-between">
-                    <div className="grid grid-cols-12 gap-2 flex-1 justify-start">
-                      <div className="col-span-12 lg:col-span-3 flex flex-col">
+          <div className='relative flex flex-col min-w-0 break-words bg-white rounded mb-6 xl:mb-0 shadow-lg'>
+            <div className='flex-auto p-4'>
+              <div className='flex flex-wrap'>
+                <div className='relative w-full pr-4 max-w-full flex-grow flex-1'>
+                  <div className='flex flex-col lg:flex-row justify-between'>
+                    <div className='grid grid-cols-12 gap-2 flex-1 justify-start'>
+                      <div className='col-span-12 lg:col-span-3 flex flex-col'>
                         <label>เลือกร้านอาหาร</label>
-                        <select {...register("restaurantId")} className="h-10">
-
+                        <select {...register('restaurantId')} className='h-10'>
                           {props.dropDownList.map((value, index) => {
                             return (
                               <option key={index} value={value.RESTAURANT.ID}>
@@ -311,18 +313,20 @@ export function Dashboard(props) {
                         </select>
                       </div>
 
-                      <div className="col-span-12 lg:col-span-3 flex flex-col">
+                      <div className='col-span-12 lg:col-span-3 flex flex-col'>
                         <label>วันที่</label>
                         <Menu
                           menuButton={
-                            <MenuButton >
-                              <div className="shadow-md xl:mb-0 h-10 flex flex-row border-1 text-left">
-                                <i className="far fa-calendar mx-4 self-center"></i>
-                                <div className="px-2 items-center self-center">
-                                  <p className="text-sm font-bold">
+                            <MenuButton>
+                              <div className='shadow-md xl:mb-0 h-10 flex flex-row border-1 text-left'>
+                                <i className='far fa-calendar mx-4 self-center'></i>
+                                <div className='px-2 items-center self-center'>
+                                  <p className='text-sm font-bold'>
                                     {datepickerInput.getDate().toString()}/
-                                    {(datepickerInput.getMonth() + 1).toString()}/
-                                    {datepickerInput.getFullYear().toString()}
+                                    {(
+                                      datepickerInput.getMonth() + 1
+                                    ).toString()}
+                                    /{datepickerInput.getFullYear().toString()}
                                   </p>
                                 </div>
                               </div>
@@ -334,7 +338,7 @@ export function Dashboard(props) {
                               e.keepOpen = true;
                             }}
                           >
-                            <div className=" z-2 bg-light shadow-md rounded-lg ">
+                            <div className=' z-2 bg-light shadow-md rounded-lg '>
                               <DatePicker
                                 onChange={(date) => {
                                   setDatepickerInput(date);
@@ -345,19 +349,19 @@ export function Dashboard(props) {
                           </MenuItem>
                         </Menu>
                       </div>
-                      <div className="col-span-12 lg:col-span-3 flex flex-col mx-0">
+                      <div className='col-span-12 lg:col-span-3 flex flex-col mx-0'>
                         <label>จากนี้อีก</label>
-                        <select {...register("endDate")} className="h-10">
-                          <option value="1"> วันนี้</option>
-                          <option value="7"> 7 วัน</option>
-                          <option value="30"> 30 วัน</option>
+                        <select {...register('endDate')} className='h-10'>
+                          <option value='1'> วันนี้</option>
+                          <option value='7'> 7 วัน</option>
+                          <option value='30'> 30 วัน</option>
                         </select>
                       </div>
                     </div>
-                    <div className="mt-5">
+                    <div className='mt-5'>
                       <button
-                        className="w-full bg-blueGray-700 active:bg-blueGray-600 text-white font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none ease-linear transition-all duration-150"
-                        type="submit"
+                        className='w-full bg-blueGray-700 active:bg-blueGray-600 text-white font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none ease-linear transition-all duration-150'
+                        type='submit'
                       >
                         ค้นหา
                       </button>
@@ -369,29 +373,29 @@ export function Dashboard(props) {
           </div>
         </form>
 
-        <div className="flex flex-wrap mb-12 mt-12">
-          <div className="w-full lg:w-6/12 xl:w-6/12 px-4">
+        <div className='flex flex-wrap mb-12 mt-12'>
+          <div className='w-full lg:w-6/12 xl:w-6/12 px-4'>
             <CardStats
-              statSubtitle="จำนวนการจอง"
-              statTitle={String(bookingCount) ?? "0"}
-              statArrow=""
-              statPercent=""
-              statPercentColor="text-emerald-500"
+              statSubtitle='จำนวนการจอง'
+              statTitle={String(bookingCount) ?? '0'}
+              statArrow=''
+              statPercent=''
+              statPercentColor='text-emerald-500'
               statDescripiron={`ช่วงระยะเวลา ${fDate} - ${lDate}`}
-              statIconName="far fa-chart-bar"
-              statIconColor="bg-red-500"
+              statIconName='far fa-chart-bar'
+              statIconColor='bg-red-500'
             />
           </div>
-          <div className="w-full lg:w-6/12 xl:w-6/12 px-4">
+          <div className='w-full lg:w-6/12 xl:w-6/12 px-4'>
             <CardStats
-              statSubtitle="ราคารวม"
-              statTitle={String(totalPrice) ?? "0"}
-              statArrow=""
-              statPercent=""
-              statPercentColor="text-red-500"
+              statSubtitle='ราคารวม'
+              statTitle={String(totalPrice) ?? '0'}
+              statArrow=''
+              statPercent=''
+              statPercentColor='text-red-500'
               statDescripiron={`ช่วงระยะเวลา ${fDate} - ${lDate}`}
-              statIconName="fas fa-chart-pie"
-              statIconColor="bg-orange-500"
+              statIconName='fas fa-chart-pie'
+              statIconColor='bg-orange-500'
             />
           </div>
           {/* <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
@@ -419,16 +423,16 @@ export function Dashboard(props) {
           />
         </div> */}
         </div>
-        <div className="flex flex-wrap">
+        <div className='flex flex-wrap'>
           {/* <div className="w-full xl:w-8/12 mb-12 xl:mb-0 px-4">
           <CardLineChart />
         </div> */}
 
-          <div className="w-full xl:w-12/12 px-4">
+          <div className='w-full xl:w-12/12 px-4'>
             <CardBarChart passData={dataChart} passDate={dateChart} />
           </div>
         </div>
-        <div className="flex flex-wrap mt-4">
+        <div className='flex flex-wrap mt-4'>
           {/* <div className="w-full xl:w-8/12 mb-12 xl:mb-0 px-4">
           <CardPageVisits />
         </div>
@@ -438,13 +442,11 @@ export function Dashboard(props) {
         </div>
       </>
     );
-  }
-  else {
-    element = <div></div>
+  } else {
+    element = <div></div>;
   }
 
-  return element
-
+  return element;
 }
 Dashboard.layout = Admin;
 

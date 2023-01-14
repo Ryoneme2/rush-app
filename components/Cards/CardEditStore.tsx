@@ -11,6 +11,7 @@ import { Switch } from '@nextui-org/react';
 import DatePicker from 'sassy-datepicker';
 import dayjs from 'dayjs';
 import { RESTAURANT, RESTAURANT_CATEGORIES } from '@prisma/client';
+import { Session } from 'next-auth';
 
 export default function CardEditStore({
   restaurantData,
@@ -28,7 +29,11 @@ export default function CardEditStore({
     setValue,
     formState: { errors },
   } = useForm();
-  const { data: session } = useSession();
+  const { data: session } = useSession() as {
+    data: Session & {
+      tokenUser: string;
+    };
+  };
 
   useEffect(() => {
     register('description', {

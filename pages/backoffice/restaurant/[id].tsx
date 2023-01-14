@@ -17,9 +17,15 @@ import {
   RESTAURANT,
   RESTAURANT_CATEGORIES,
 } from '@prisma/client';
+import { Session } from 'next-auth';
+
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
-  const session = await getSession(context);
+  const session = (await getSession(context)) as Session & {
+    tokenUser: string;
+    fname: string;
+    lname: string;
+  };
 
   if (!session) {
     return { redirect: { destination: '/auth/backoffice' } };

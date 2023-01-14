@@ -1,25 +1,38 @@
-# Install dependencies only when needed
-FROM node:16-alpine AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
+FROM --platform=linux/amd64 node:16-alpine3.16 AS deps
+# RUN apk add --no-cache libc6-compat openssl1.1-compat
 WORKDIR /app
-COPY package.json yarn.lock ./
-COPY prisma ./prisma/
-RUN yarn install
 
-# Rebuild the source code only when needed
-FROM node:16-alpine AS builder
+# Install dependencies based on the preferred package manager
+
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml\* ./
+
+RUN yarn --frozen-lockfile
+
+##### BUILDER
+
+FROM --platform=linux/amd64 node:16-alpine3.16 AS builder
+# ARG DATABASE_URL
+ARG NEXT_PUBLIC_CLIENTVAR
 WORKDIR /app
-COPY . .
 COPY --from=deps /app/node_modules ./node_modules
-RUN yarn build
+COPY . .
 
-# Production image, copy all the files and run next
-FROM node:16-alpine AS runner
+# ENV NEXT_TELEMETRY_DISABLED 1
+RUN npx prisma generate
+
+RUN yarn run build
+
+RUN yarn --frozen-lockfile
+
+FROM --platform=linux/amd64 node:16-alpine3.16 AS runner
 WORKDIR /app
 
+ENV NODE_ENV production
 # ENV NODE_ENV production
-ENV DATABASE_URL=postgresql://postgres:qF6YqlCM6HNH@rush-db.c2ky36zcbpor.ap-southeast-1.rds.amazonaws.com/rushapp
+# ENV DATABASE_URL=postgresql://postgres:qF6YqlCM6HNH@rush-db.c2ky36zcbpor.ap-southeast-1.rds.amazonaws.com/rushapp
+
+# ENV NODE_ENV development
+ENV DATABASE_URL=postgresql://theerakarn:7f05UrLVP4MJ0QwV1OHAew@wonder-krill-3574.6xw.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full
 
 ENV NEXTAUTH_URL=https://rushbooking.co/
 

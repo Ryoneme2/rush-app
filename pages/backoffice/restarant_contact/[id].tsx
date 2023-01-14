@@ -1,56 +1,60 @@
 // const [contactProvider, setContactProvider] = useState([]);
-import React from "react";
+import React from 'react';
 
 // components
 
 // layout for page
 
-import CardListRestarantContact from "components/Cards/CardListRestarantContact";
+import CardListRestarantContact from 'components/Cards/CardListRestarantContact';
 
+import { getSession } from 'next-auth/react';
+import BackOffice from 'layouts/BackOffice';
+import { verify } from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+import { Session } from 'next-auth';
 
-import { getSession } from "next-auth/react";
-import BackOffice from "layouts/BackOffice";
-import { verify } from "jsonwebtoken"
-import { PrismaClient } from "@prisma/client";
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
-  const session = await getSession(context)
-
+  const session = (await getSession(context)) as Session & {
+    tokenUser: string;
+    fname: string;
+    lname: string;
+  };
   if (!session) {
-    return { redirect: { destination: '/auth/backoffice' } }
+    return { redirect: { destination: '/auth/backoffice' } };
   }
 
   const secretKey: string = process.env.JWT_SECRET;
-  const user = verify(session.tokenUser, secretKey)
+  const user = verify(session.tokenUser, secretKey);
   const accountTypeId = await prisma.aCCOUNT_TYPE.findFirst({
-    where: { NAME: process.env.TYPE_ADMIN_NAME }
-  })
-  await prisma.$disconnect()
+    where: { NAME: process.env.TYPE_ADMIN_NAME },
+  });
+  await prisma.$disconnect();
 
   // เลือกทุก property
   const res = await prisma.aCCOUNT_PROFILE.findFirst({
     where: {
       ID: parseInt(user.ID),
-      ACCOUNT_TYPE_ID: accountTypeId.ID
+      ACCOUNT_TYPE_ID: accountTypeId.ID,
     },
   });
 
-  await prisma.$disconnect()
+  await prisma.$disconnect();
 
-  const dataRole = await JSON.parse(JSON.stringify(res))
+  const dataRole = await JSON.parse(JSON.stringify(res));
 
   if (!dataRole) {
-    return { redirect: { destination: '/' } }
+    return { redirect: { destination: '/' } };
   }
 
   const response = await prisma.rESTAURANT_CONTACT.findMany({
     where: {
       RESTAURANT_ID: parseInt(context.params.id),
-    }, include: { CONTACT_PROVIDER: true }
+    },
+    include: { CONTACT_PROVIDER: true },
   });
-  await prisma.$disconnect()
+  await prisma.$disconnect();
   const result = await JSON.parse(JSON.stringify(response));
-
 
   return { props: { contactList: result, restaurantId: context.params.id } };
 }
@@ -58,9 +62,13 @@ export async function getServerSideProps(context) {
 export function Area({ contactList, restaurantId, contactProviderList }) {
   return (
     <>
-      <div className="flex flex-wrap">
-        <div className="w-full h-screen">
-          <CardListRestarantContact list={contactList} restaurantId={restaurantId} contactProviderList={contactProviderList} />
+      <div className='flex flex-wrap'>
+        <div className='w-full h-screen'>
+          <CardListRestarantContact
+            list={contactList}
+            restaurantId={restaurantId}
+            contactProviderList={contactProviderList}
+          />
         </div>
       </div>
     </>

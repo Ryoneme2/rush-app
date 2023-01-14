@@ -1,28 +1,31 @@
-import React from "react";
+import React from 'react';
 
 // components
 
 // layout for page
 
-import BackOffice from "layouts/BackOffice";
-import CardListMenuCategories from "components/BackOffice/Cards/CardListMenuCategories";
-import { getSession } from "next-auth/react";
-import { PrismaClient } from "@prisma/client";
-
+import BackOffice from 'layouts/BackOffice';
+import CardListMenuCategories from 'components/BackOffice/Cards/CardListMenuCategories';
+import { getSession } from 'next-auth/react';
+import { PrismaClient } from '@prisma/client';
+import { Session } from 'next-auth';
 
 export async function getServerSideProps(context) {
-
   const prisma = new PrismaClient();
-  const session = await getSession(context)
+  const session = (await getSession(context)) as Session & {
+    tokenUser: string;
+    fname: string;
+    lname: string;
+  };
   if (!session) {
-    return { redirect: { destination: '/auth/backoffice' } }
+    return { redirect: { destination: '/auth/backoffice' } };
   }
 
   const response = await prisma.mENU_CATEGORIES.findMany({
-    orderBy: [{ ID: "asc" }],
+    orderBy: [{ ID: 'asc' }],
   });
 
-  await prisma.$disconnect()
+  await prisma.$disconnect();
   const result = await JSON.parse(JSON.stringify(response));
 
   return { props: { menuCategories: result } };
@@ -31,8 +34,8 @@ export async function getServerSideProps(context) {
 export function MenuCategories({ menuCategories }) {
   return (
     <>
-      <div className="flex flex-wrap">
-        <div className="w-full h-screen">
+      <div className='flex flex-wrap'>
+        <div className='w-full h-screen'>
           <CardListMenuCategories list={menuCategories} />
         </div>
       </div>

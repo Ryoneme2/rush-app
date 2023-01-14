@@ -1,63 +1,67 @@
-import React from "react";
+import React from 'react';
 
 // components
-import CardListPackage from "components/Cards/CardListPackage";
+import CardListPackage from 'components/Cards/CardListPackage';
 
 // layout for page
 
-import { GetStaticProps } from "next";
+import { GetStaticProps } from 'next';
 
-import { getSession } from "next-auth/react";
-import BackOffice from "layouts/BackOffice";
-import { verify } from "jsonwebtoken"
-import { PrismaClient } from "@prisma/client";
+import { getSession } from 'next-auth/react';
+import BackOffice from 'layouts/BackOffice';
+import { verify } from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+import { Session } from 'next-auth';
+
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
-  const session = await getSession(context)
-
+  const session = (await getSession(context)) as Session & {
+    tokenUser: string;
+    fname: string;
+    lname: string;
+  };
   if (!session) {
-    return { redirect: { destination: '/auth/backoffice' } }
+    return { redirect: { destination: '/auth/backoffice' } };
   }
 
   const secretKey: string = process.env.JWT_SECRET;
-  const user = verify(session.tokenUser, secretKey)
+  const user = verify(session.tokenUser, secretKey);
   const accountTypeId = await prisma.aCCOUNT_TYPE.findFirst({
-    where: { NAME: process.env.TYPE_ADMIN_NAME }
-  })
-  await prisma.$disconnect()
+    where: { NAME: process.env.TYPE_ADMIN_NAME },
+  });
+  await prisma.$disconnect();
 
   // เลือกทุก property
   const res = await prisma.aCCOUNT_PROFILE.findFirst({
     where: {
       ID: parseInt(user.ID),
-      ACCOUNT_TYPE_ID: accountTypeId.ID
+      ACCOUNT_TYPE_ID: accountTypeId.ID,
     },
   });
 
-  await prisma.$disconnect()
+  await prisma.$disconnect();
 
-  const dataRole = await JSON.parse(JSON.stringify(res))
+  const dataRole = await JSON.parse(JSON.stringify(res));
 
   if (!dataRole) {
-    return { redirect: { destination: '/' } }
+    return { redirect: { destination: '/' } };
   }
 
   const response = await prisma.bOOKING_PACKAGE.findMany({
     where: { RESTAURANT_ID: parseInt(context.params.id), IS_ACTIVE: true },
-    orderBy: [{ ID: "asc" }],
+    orderBy: [{ ID: 'asc' }],
   });
-  await prisma.$disconnect()
-  const result = await JSON.parse(JSON.stringify(response))
+  await prisma.$disconnect();
+  const result = await JSON.parse(JSON.stringify(response));
 
   return { props: { packageList: result, restaurantId: context.params.id } };
 }
 
 export function Menu({ packageList, restaurantId }) {
-
   return (
     <>
-      <div className="flex flex-wrap">
-        <div className="w-full h-screen">
+      <div className='flex flex-wrap'>
+        <div className='w-full h-screen'>
           <CardListPackage list={packageList} restaurantId={restaurantId} />
         </div>
       </div>
