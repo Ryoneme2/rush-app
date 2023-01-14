@@ -24,6 +24,7 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { PrismaClient } from '@prisma/client';
 import dayjs from 'dayjs';
+import clsx from 'clsx';
 
 export async function getServerSideProps(ctx) {
   const prisma = new PrismaClient();
@@ -672,7 +673,14 @@ function Restaurant({
                   <Menu
                     menuButton={
                       <MenuButton className='w-full h-full'>
-                        <div className='rounded-lg shadow-md  flex flex-row nav-input text-left sm:mb-3 xl:mb-0 xl:mr-2'>
+                        <div
+                          className={clsx(
+                            'rounded-lg shadow-md flex flex-row nav-input text-left sm:mb-3 xl:mb-0 xl:mr-2 ',
+                            {
+                              'bg-gray-200 cursor-not-allowed': data.FIX_DATE,
+                            }
+                          )}
+                        >
                           <i className='far fa-calendar mx-4 my-auto'></i>
                           <div className='px-2'>
                             <p className='text-sm'>Date</p>
@@ -686,66 +694,68 @@ function Restaurant({
                       </MenuButton>
                     }
                   >
-                    <MenuItem
-                      onClick={(e) => {
-                        e.keepOpen = true;
-                      }}
-                    >
-                      <div className='z-2 bg-light shadow-md rounded-lg '>
-                        <DatePicker
-                          disabled={true}
-                          onChange={(date) => {
-                            let checkDate = new Date(date);
+                    {!data.FIX_DATE && (
+                      <MenuItem
+                        onClick={(e) => {
+                          e.keepOpen = true;
+                        }}
+                      >
+                        <div className='z-2 bg-light shadow-md rounded-lg '>
+                          <DatePicker
+                            disabled={true}
+                            onChange={(date) => {
+                              let checkDate = new Date(date);
 
-                            if (new Date().getHours() < 7) {
-                              if (
-                                checkDate >=
-                                new Date(
+                              if (new Date().getHours() < 7) {
+                                if (
+                                  checkDate >=
                                   new Date(
-                                    new Date().setUTCHours(17, 0, 0, 0)
-                                  ).setUTCDate(new Date().getUTCDate())
-                                )
-                              ) {
-                                setDatepickerInput(date);
-                                CheckAvaliableTable(date);
-                              }
-                              // else {
-                              //   setDatepickerInput(new Date());
-                              //   MySwal.fire({
-                              //     title: 'เกิดข้อผิดพลาด',
-                              //     text: 'วันที่เลือกสามารถไม่สามารถทำการจองได้',
-                              //     icon: 'warning',
-                              //     confirmButtonText: 'ok',
-                              //   });
-                              // }
-                            } else {
-                              if (
-                                checkDate >=
-                                new Date(
+                                    new Date(
+                                      new Date().setUTCHours(17, 0, 0, 0)
+                                    ).setUTCDate(new Date().getUTCDate())
+                                  )
+                                ) {
+                                  setDatepickerInput(date);
+                                  CheckAvaliableTable(date);
+                                }
+                                // else {
+                                //   setDatepickerInput(new Date());
+                                //   MySwal.fire({
+                                //     title: 'เกิดข้อผิดพลาด',
+                                //     text: 'วันที่เลือกสามารถไม่สามารถทำการจองได้',
+                                //     icon: 'warning',
+                                //     confirmButtonText: 'ok',
+                                //   });
+                                // }
+                              } else {
+                                if (
+                                  checkDate >=
                                   new Date(
-                                    new Date().setUTCHours(17, 0, 0, 0)
-                                  ).setUTCDate(new Date().getUTCDate() - 1)
-                                )
-                              ) {
-                                setDatepickerInput(date);
-                                CheckAvaliableTable(date);
+                                    new Date(
+                                      new Date().setUTCHours(17, 0, 0, 0)
+                                    ).setUTCDate(new Date().getUTCDate() - 1)
+                                  )
+                                ) {
+                                  setDatepickerInput(date);
+                                  CheckAvaliableTable(date);
+                                }
+                                //  else {
+                                //   setDatepickerInput(new Date());
+                                //   MySwal.fire({
+                                //     title: 'เกิดข้อผิดพลาด',
+                                //     text: 'วันที่เลือกสามารถไม่สามารถทำการจองได้',
+                                //     icon: 'warning',
+                                //     confirmButtonText: 'ok',
+                                //   });
+                                // }
                               }
-                              //  else {
-                              //   setDatepickerInput(new Date());
-                              //   MySwal.fire({
-                              //     title: 'เกิดข้อผิดพลาด',
-                              //     text: 'วันที่เลือกสามารถไม่สามารถทำการจองได้',
-                              //     icon: 'warning',
-                              //     confirmButtonText: 'ok',
-                              //   });
-                              // }
-                            }
-                            setPickTableList([]);
-                          }}
-                          selected={datepickerInput}
-                        />
-                      </div>
-                    </MenuItem>
+                              setPickTableList([]);
+                            }}
+                            selected={datepickerInput}
+                          />
+                        </div>
+                      </MenuItem>
+                    )}
                   </Menu>
                 </div>
                 <div className='w-full'>
