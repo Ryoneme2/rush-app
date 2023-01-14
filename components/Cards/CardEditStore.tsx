@@ -66,7 +66,7 @@ export default function CardEditStore({
 
   // const [image, setImage] = useState(null);
   // const [createObjectURL, setCreateObjectURL] = useState([]);
-  const [isFixTime, setIsFixTime] = useState(false);
+  const [isFixTime, setIsFixTime] = useState(!!restaurantData?.FIX_DATE);
   const [isDPOpen, setIsDPOpen] = useState(false);
   const [datePick, setDatePick] = useState(dayjs().toDate());
 

@@ -148,9 +148,12 @@ function Restaurant({
   const [restaurantImage, setResImage] = useState(true);
   const [zoneSelected, setZoneSelected] = useState('Overall');
 
+  console.log(data);
+
   //เขียนดักว่า เวลา xx ใช่ตัวบน ถ้า อีกเวลา xx ถึง xx จะใช้เอา -1 ออ
   //ต้องหาให้ได้ว่าเวลาไหน เดา 00.00 > 07.00
   const [datepickerInput, setDatepickerInput] = useState(() => {
+    if (!!data?.FIX_DATE) return dayjs(data.FIX_DATE).toDate();
     if (new Date().getHours() < 7) {
       return new Date(
         new Date(new Date().setUTCHours(17, 0, 0, 0)).setUTCDate(
