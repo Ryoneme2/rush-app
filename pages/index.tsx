@@ -7,7 +7,14 @@ import Default from 'layouts/Default';
 // import EventCard from "components/Frontend/Card/CardEventCard";
 import RestaurantCard from 'components/Frontend/Card/RestaurantCard';
 import { useRouter } from 'next/router';
-import { PrismaClient } from '@prisma/client';
+import {
+  PrismaClient,
+  RESTAURANT,
+  RESTAURANT_CONTACT,
+  RESTAURANT_GALLERY,
+  RESTAURANT_MUSIC_STYLE,
+  RESTAURANT_CATEGORIES,
+} from '@prisma/client';
 
 // import Swiper JS
 // import { Swiper, SwiperSlide } from 'swiper/react';
@@ -15,7 +22,16 @@ import { PrismaClient } from '@prisma/client';
 import 'swiper/css';
 import { useSession } from 'next-auth/react';
 
-function Index({ data }) {
+function Index({
+  data,
+}: {
+  data: (RESTAURANT & {
+    RESTAURANT_CATEGORIES: RESTAURANT_CATEGORIES;
+    RESTAURANT_CONTACT: RESTAURANT_CONTACT[];
+    RESTAURANT_GALLERY: RESTAURANT_GALLERY[];
+    RESTAURANT_MUSIC_STYLE: RESTAURANT_MUSIC_STYLE[];
+  })[];
+}) {
   console.log(data);
 
   return (
@@ -37,6 +53,7 @@ function Index({ data }) {
                       rName={e.NAME}
                       rLocation={e.ADDRESS}
                       images={e.RESTAURANT_GALLERY}
+                      fixDate={e.FIX_DATE}
                     />
                   );
                 }
