@@ -1,0 +1,38 @@
+.summary-title-menu{
+    font-size: 24px;
+}
+
+.payment-text{
+    font-size: 16px;
+}
+
+.payment-name{
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+}
+
+.summary-restaurant-img-pc{
+    width: 340px;
+    height: 144px;
+
+}
+
+.summary-layout {
+    padding: 0px 120px;
+}
+
+@media only screen and (max-width: 1024px) {
+
+        .payment-text {
+            font-size: 12px;
+        }
+
+        .summary-layout {
+            padding: 0px 24px;
+        }
+}
+
+@media only screen and (max-width: 640px) {
+        .summary-title-menu {
+            font-size: 18px;
+        }
+}

@@ -1,0 +1,30 @@
+.restaurant-layout{
+    padding: 0;
+}
+
+.restaurant-info{
+    padding-right: 48px;
+}
+
+.package-price{
+    font-weight: bold;
+}
+
+.select-package-name{
+    font-size: 16px;
+}
+@media only screen and (max-width: 1024px) {
+    .restaurant-info {
+            padding: 0 20px;
+        }
+}
+
+@media only screen and (max-width: 640px) {
+    .resrautant-layout {
+        padding: 0 24px;
+    }
+
+        .package-price {
+            font-weight: bold;
+        }
+}

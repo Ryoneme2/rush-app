@@ -1,0 +1,525 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// npx prisma db push *** updata schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL_DEV")
+}
+
+enum Gender {
+  Male
+  Female
+}
+
+model ACCOUNT_PROFILE {
+  ID               Int      @id @unique @default(sequence())
+  ACCOUNT_TYPE_ID  Int
+  PROFILE_PIC_PATH String
+  FIRST_NAME       String
+  MIDDLE_NAME      String
+  LAST_NAME        String
+  BIRTH_DATE       DateTime
+  GENDER           Gender
+  PHONE            String
+  IS_ACTIVE        Boolean
+  CREATE_DATETIME  DateTime @default(now())
+  MODIFY_DATETIME  DateTime @updatedAt
+
+  ACCOUNT_TYPE          ACCOUNT_TYPE         @relation(fields: [ACCOUNT_TYPE_ID], references: [ID])
+  ACCOUNT_EXTERNAL      ACCOUNT_EXTERNAL[]
+  CONSENT_MANAGEMENT    CONSENT_MANAGEMENT[]
+  ACCOUNT_INTERNAL      ACCOUNT_INTERNAL[]
+  REVIEWS               REVIEWS[]
+  RESTAURANT_MEMBERS    RESTAURANT_MEMBERS[]
+  BOOKING               BOOKING[]
+  CHAT_CHANNEL          CHAT_CHANNEL[]
+  CHAT_MESSAGE_SENDER   CHAT_MESSAGE[]       @relation("MESSAGE_SENDER")
+  CHAT_MESSAGE_RECEIVER CHAT_MESSAGE[]       @relation("MESSAGE_RECEIVER")
+}
+
+model ACCOUNT_TYPE {
+  ID                   Int                    @id @unique @default(sequence())
+  NAME                 String
+  DESCRIPTION          String
+  IS_ACTIVE            Boolean
+  CREATE_DATETIME      DateTime               @default(now())
+  MODIFY_DATETIME      DateTime               @updatedAt
+  // ACCOUNT_PROFILE ACCOUNT_PROFILE?   @relation(fields: [CREATE_BY], references: [ID])
+  ACCOUNT_PROFILE      ACCOUNT_PROFILE[]
+  ACCOUNT_TYPE_GRANTED ACCOUNT_TYPE_GRANTED[]
+}
+
+model ACCOUNT_TYPE_GRANTED {
+  ID              Int      @id @unique @default(sequence())
+  ACCOUNT_TYPE_ID Int
+  PERMISSION_ID   Int
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  ACCOUNT_TYPE ACCOUNT_TYPE @relation(fields: [ACCOUNT_TYPE_ID], references: [ID])
+  PERMISSION   PERMISSION   @relation(fields: [PERMISSION_ID], references: [ID])
+}
+
+model PERMISSION {
+  ID              Int      @id @unique @default(sequence())
+  NAME            String
+  DESCRIPTION     String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  ACCOUNT_TYPE_GRANTED ACCOUNT_TYPE_GRANTED[]
+  MEMBER_ROLE_GRANTED  MEMBER_ROLE_GRANTED[]
+}
+
+model ACCOUNT_INTERNAL {
+  ACCOUNT_PROFILE_ID      Int             @unique()
+  EMAIL                   String
+  EMAIL_VALIDATION_STATUS Boolean
+  USERNAME                String
+  PASSWORD_HASH           String
+  COMFIMATION_TOKEN       String
+  TOKEN_GENERATION_TIME   String
+  TOKEN_RECOVERY_TIME     String
+  IS_ACTIVE               Boolean
+  CREATE_DATETIME         DateTime        @default(now())
+  MODIFY_DATETIME         DateTime        @updatedAt
+  ACCOUNT_PROFILE         ACCOUNT_PROFILE @relation(fields: [ACCOUNT_PROFILE_ID], references: [ID])
+}
+
+model ACCOUNT_EXTERNAL_PROVIDER {
+  ID               Int                @id @unique @default(sequence())
+  NAME             String
+  TYPE             String
+  IS_ACTIVE        Boolean
+  CREATE_DATETIME  DateTime           @default(now())
+  MODIFY_DATETIME  DateTime           @updatedAt
+  ACCOUNT_EXTERNAL ACCOUNT_EXTERNAL[]
+}
+
+model ACCOUNT_EXTERNAL {
+  ACCOUNT_PROFILE_ID           Int                       @unique()
+  ACCOUNT_EXTERNAL_PROVIDER_ID Int
+  PROVIDER_ACCOUNT_ID          String
+  PROVIDER_TOKEN               String
+  PROVIDER_TOKEN_TYPE          String
+  IS_ACTIVE                    Boolean
+  CREATE_DATETIME              DateTime                  @default(now())
+  MODIFY_DATETIME              DateTime                  @updatedAt
+  ACCOUNT_PROFILE              ACCOUNT_PROFILE           @relation(fields: [ACCOUNT_PROFILE_ID], references: [ID])
+  ACCOUNT_EXTERNAL_PROVIDER    ACCOUNT_EXTERNAL_PROVIDER @relation(fields: [ACCOUNT_EXTERNAL_PROVIDER_ID], references: [ID])
+}
+
+model PRIVACY_NOTICE {
+  ID              Int      @id @unique @default(sequence())
+  NAME            String
+  DESCRIPTION     String
+  DETAIL          String
+  FILE_VERSION    String
+  FILE_PATH       String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  CONSENT_MANAGEMENT CONSENT_MANAGEMENT[]
+}
+
+model CONSENT_MANAGEMENT {
+  ID                 Int      @id @unique @default(sequence())
+  ACCOUNT_PROFILE_ID Int
+  PRIVACY_NOTICE_ID  Int
+  IS_CHECKED         Boolean
+  IS_ACTIVE          Boolean
+  CREATE_DATETIME    DateTime @default(now())
+  MODIFY_DATETIME    DateTime @updatedAt
+
+  ACCOUNT_PROFILE ACCOUNT_PROFILE @relation(fields: [ACCOUNT_PROFILE_ID], references: [ID])
+  PRIVACY_NOTICE  PRIVACY_NOTICE  @relation(fields: [PRIVACY_NOTICE_ID], references: [ID])
+}
+
+model RESTAURANT {
+  ID                       Int      @id @unique @default(sequence())
+  RESTAURANT_CATEGORIES_ID Int
+  NAME                     String
+  DESCRIPTION              String
+  LAT                      String
+  LONG                     String
+  ADDRESS                  String
+  WORK_HOURS_DESCRIPTION   String
+  CONDITION                String?
+  FEE                      Float?
+  IS_CANCLE_POLICY         Boolean? @default(true)
+  IS_ACTIVE                Boolean
+  CREATE_DATETIME          DateTime @default(now())
+  MODIFY_DATETIME          DateTime @updatedAt
+
+  RESTAURANT_CATEGORIES  RESTAURANT_CATEGORIES    @relation(fields: [RESTAURANT_CATEGORIES_ID], references: [ID])
+  RESTAURANT_GALLERY     RESTAURANT_GALLERY[]
+  RESTAURANT_PLAN        RESTAURANT_PLAN[]
+  RESTAURANT_MUSIC_STYLE RESTAURANT_MUSIC_STYLE[]
+  REVIEWS                REVIEWS[]
+  RESTAURANT_MEMBERS     RESTAURANT_MEMBERS[]
+  BOOKING                BOOKING[]
+  AREA                   AREA[]
+  RESTAURANT_HASHTAG     RESTAURANT_HASHTAG[]
+  BOOKING_PACKAGE        BOOKING_PACKAGE[]
+  CHAT_CHANNEL           CHAT_CHANNEL[]
+  RESTAURANT_CONTACT     RESTAURANT_CONTACT[]
+}
+
+model RESTAURANT_CATEGORIES {
+  ID              Int      @id @unique @default(sequence())
+  NAME            String
+  DESCRIPTION     String
+  ICON_NAME       String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  RESTAURANT RESTAURANT[]
+}
+
+model RESTAURANT_GALLERY {
+  ID              Int      @id @unique @default(sequence())
+  RESTAURANT_ID   Int
+  FILE_NAME       String
+  FILE_PATH       String
+  FILE_TYPE       String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  RESTAURANT RESTAURANT @relation(fields: [RESTAURANT_ID], references: [ID])
+}
+
+model RESTAURANT_PLAN {
+  ID              Int      @id @unique @default(sequence())
+  RESTAURANT_ID   Int
+  FILE_NAME       String
+  FILE_PATH       String
+  FILE_TYPE       String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  RESTAURANT RESTAURANT @relation(fields: [RESTAURANT_ID], references: [ID])
+}
+
+model MUSIC_STYLE {
+  ID                     Int                      @id @unique @default(sequence())
+  NAME                   String
+  IS_ACTIVE              Boolean
+  CREATE_DATETIME        DateTime                 @default(now())
+  MODIFY_DATETIME        DateTime                 @updatedAt
+  RESTAURANT_MUSIC_STYLE RESTAURANT_MUSIC_STYLE[]
+}
+
+model RESTAURANT_MUSIC_STYLE {
+  ID              Int      @id @unique @default(sequence())
+  RESTAURANT_ID   Int
+  MUSIC_STYLE_ID  Int
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  RESTAURANT  RESTAURANT  @relation(fields: [RESTAURANT_ID], references: [ID])
+  MUSIC_STYLE MUSIC_STYLE @relation(fields: [MUSIC_STYLE_ID], references: [ID])
+}
+
+model REVIEWS {
+  ID              Int      @id @unique @default(sequence())
+  RESTAURANT_ID   Int
+  POSTOR_ID       Int
+  STAR_RATES      Decimal
+  COMMENT         String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  RESTAURANT      RESTAURANT        @relation(fields: [RESTAURANT_ID], references: [ID])
+  ACCOUNT_PROFILE ACCOUNT_PROFILE   @relation(fields: [POSTOR_ID], references: [ID])
+  REVIEWS_HASHTAG REVIEWS_HASHTAG[]
+}
+
+model REVIEWS_HASHTAG {
+  ID              Int      @id @unique @default(sequence())
+  REVIEWS_ID      Int
+  HASH_TAG        String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  REVIEWS REVIEWS @relation(fields: [REVIEWS_ID], references: [ID])
+}
+
+model RESTAURANT_MEMBERS {
+  ID                 Int      @id @unique @default(sequence())
+  RESTAURANT_ID      Int
+  ACCOUNT_PROFILE_ID Int
+  IS_ACTIVE          Boolean
+  CREATE_DATETIME    DateTime @default(now())
+  MODIFY_DATETIME    DateTime @updatedAt
+
+  RESTAURANT              RESTAURANT                @relation(fields: [RESTAURANT_ID], references: [ID])
+  ACCOUNT_PROFILE         ACCOUNT_PROFILE           @relation(fields: [ACCOUNT_PROFILE_ID], references: [ID])
+  RESTAURANT_MEMBERS_ROLE RESTAURANT_MEMBERS_ROLE[]
+}
+
+model RESTAURANT_MEMBERS_ROLE {
+  ID                    Int      @id @unique @default(sequence())
+  RESTAURANT_MEMBERS_ID Int
+  MEMBER_ROLE_ID        Int
+  IS_ACTIVE             Boolean
+  CREATE_DATETIME       DateTime @default(now())
+  MODIFY_DATETIME       DateTime @updatedAt
+
+  RESTAURANT_MEMBERS RESTAURANT_MEMBERS @relation(fields: [RESTAURANT_MEMBERS_ID], references: [ID])
+  MEMBER_ROLE        MEMBER_ROLE        @relation(fields: [MEMBER_ROLE_ID], references: [ID])
+}
+
+model RESTAURANT_CONTACT {
+  ID                  Int      @id @unique @default(sequence())
+  RESTAURANT_ID       Int
+  CONTACT_PROVIDER_ID Int
+  TITLE               String
+  DETAIL              String
+  IS_ACTIVE           Boolean
+  CREATE_DATETIME     DateTime @default(now())
+  MODIFY_DATETIME     DateTime @updatedAt
+
+  RESTAURANT       RESTAURANT       @relation(fields: [RESTAURANT_ID], references: [ID])
+  CONTACT_PROVIDER CONTACT_PROVIDER @relation(fields: [CONTACT_PROVIDER_ID], references: [ID])
+}
+
+model CONTACT_PROVIDER {
+  ID                 Int                  @id @unique @default(sequence())
+  NAME               String
+  DESCRIPTION        String
+  ICON_NAME          String
+  IS_ACTIVE          Boolean
+  CREATE_DATETIME    DateTime             @default(now())
+  MODIFY_DATETIME    DateTime             @updatedAt
+  RESTAURANT_CONTACT RESTAURANT_CONTACT[]
+}
+
+model MEMBER_ROLE {
+  ID              Int      @id @unique @default(sequence())
+  NAME            String
+  DESCRIPTION     String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  RESTAURANT_MEMBERS_ROLE RESTAURANT_MEMBERS_ROLE[]
+  MEMBER_ROLE_GRANTED     MEMBER_ROLE_GRANTED[]
+}
+
+model MEMBER_ROLE_GRANTED {
+  ID              Int      @id @unique @default(sequence())
+  MEMBER_ROLE_ID  Int
+  PERMISSION_ID   Int
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  MEMBER_ROLE MEMBER_ROLE @relation(fields: [MEMBER_ROLE_ID], references: [ID])
+  PERMISSION  PERMISSION  @relation(fields: [PERMISSION_ID], references: [ID])
+}
+
+model BOOKING {
+  ID              Int      @id @unique @default(sequence())
+  RESTAURANT_ID   Int
+  CUSTOMER_ID     Int
+  GUESTS_AMOUNT   Int
+  BOOK_DATETIME   DateTime @default(now())
+  TOTAL_PRICE     Decimal
+  STATUS          String
+  IS_APPROVE      Boolean
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  RESTAURANT             RESTAURANT               @relation(fields: [RESTAURANT_ID], references: [ID])
+  ACCOUNT_PROFILE        ACCOUNT_PROFILE          @relation(fields: [CUSTOMER_ID], references: [ID])
+  BOOKING_TABLES         BOOKING_TABLES[]
+  BOOKING_PACKAGE_SELECT BOOKING_PACKAGE_SELECT[]
+}
+
+model BOOKING_TABLES {
+  ID              Int      @id @unique @default(sequence())
+  BOOKING_ID      Int
+  TABLE_ID        Int
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  BOOKING BOOKING @relation(fields: [BOOKING_ID], references: [ID])
+  TABLE   TABLE   @relation(fields: [TABLE_ID], references: [ID])
+}
+
+model BOOKING_PACKAGE_SELECT {
+  ID                 Int      @id @unique @default(sequence())
+  BOOKING_ID         Int
+  BOOKING_PACKAGE_ID Int
+  IS_ACTIVE          Boolean
+  CREATE_DATETIME    DateTime @default(now())
+  MODIFY_DATETIME    DateTime @updatedAt
+
+  BOOKING         BOOKING         @relation(fields: [BOOKING_ID], references: [ID])
+  BOOKING_PACKAGE BOOKING_PACKAGE @relation(fields: [BOOKING_PACKAGE_ID], references: [ID])
+}
+
+model TABLE {
+  ID              Int      @id @unique @default(sequence())
+  AREA_ID         Int
+  NAME            String
+  DESCRIPTION     String
+  SEATS_AMOUNT    Int
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  AREA           AREA             @relation(fields: [AREA_ID], references: [ID])
+  BOOKING_TABLES BOOKING_TABLES[]
+}
+
+model AREA {
+  ID              Int      @id @unique @default(sequence())
+  RESTAURANT_ID   Int
+  NAME            String
+  DESCRIPTION     String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  RESTAURANT RESTAURANT @relation(fields: [RESTAURANT_ID], references: [ID])
+  TABLE      TABLE[]
+}
+
+model RESTAURANT_HASHTAG {
+  ID              Int      @id @unique @default(sequence())
+  RESTAURANT_ID   Int
+  HASH_TAG        String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  RESTAURANT RESTAURANT @relation(fields: [RESTAURANT_ID], references: [ID])
+}
+
+model MENU {
+  ID                 Int      @id @unique @default(sequence())
+  MENU_CATEGORIES_ID Int
+  RESTAURANT_ID      Int
+  NAME               String
+  DESCRIPTION        String
+  PRICE              Decimal
+  IS_ACTIVE          Boolean
+  CREATE_DATETIME    DateTime @default(now())
+  MODIFY_DATETIME    DateTime @updatedAt
+
+  MENU_CATEGORIES     MENU_CATEGORIES       @relation(fields: [MENU_CATEGORIES_ID], references: [ID])
+  BOOKING_PACKAGE_SET BOOKING_PACKAGE_SET[]
+  MENU_GALLERY        MENU_GALLERY[]
+}
+
+model MENU_CATEGORIES {
+  ID              Int      @id @unique @default(sequence())
+  NAME            String
+  DESCRIPTION     String
+  ICON_NAME       String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  MENU MENU[]
+}
+
+model BOOKING_PACKAGE {
+  ID              Int      @id @unique @default(sequence())
+  RESTAURANT_ID   Int
+  NAME            String
+  DESCRIPTION     String
+  PRICE           Decimal
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  RESTAURANT             RESTAURANT               @relation(fields: [RESTAURANT_ID], references: [ID])
+  BOOKING_PACKAGE_SET    BOOKING_PACKAGE_SET[]
+  BOOKING_PACKAGE_SELECT BOOKING_PACKAGE_SELECT[]
+}
+
+model BOOKING_PACKAGE_SET {
+  ID                 Int      @id @unique @default(sequence())
+  BOOKING_PACKAGE_ID Int
+  MENU_ID            Int
+  QTY                Int
+  IS_ACTIVE          Boolean
+  CREATE_DATETIME    DateTime @default(now())
+  MODIFY_DATETIME    DateTime @updatedAt
+
+  BOOKING_PACKAGE BOOKING_PACKAGE @relation(fields: [BOOKING_PACKAGE_ID], references: [ID])
+  MENU            MENU            @relation(fields: [MENU_ID], references: [ID])
+}
+
+model MENU_GALLERY {
+  ID              Int      @id @unique @default(sequence())
+  MENU_ID         Int
+  FILE_NAME       String
+  FILE_PATH       String
+  FILE_TYPE       String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  MENU MENU @relation(fields: [MENU_ID], references: [ID])
+}
+
+model CHAT_CHANNEL {
+  ID              Int      @id @unique @default(sequence())
+  RESTAURANT_ID   Int
+  CUSTOMER_ID     Int
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  RESTAURANT      RESTAURANT      @relation(fields: [RESTAURANT_ID], references: [ID])
+  ACCOUNT_PROFILE ACCOUNT_PROFILE @relation(fields: [CUSTOMER_ID], references: [ID])
+}
+
+model CHAT_MESSAGE {
+  ID              Int      @id @unique @default(sequence())
+  CHAT_CHANNEL_ID Int
+  SENDER_ID       Int
+  RECEIVER_ID     Int
+  MESSAGE         String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  ACCOUNT_PROFILE_SENDER   ACCOUNT_PROFILE   @relation("MESSAGE_SENDER", fields: [SENDER_ID], references: [ID])
+  ACCOUNT_PROFILE_RECEIVER ACCOUNT_PROFILE   @relation("MESSAGE_RECEIVER", fields: [RECEIVER_ID], references: [ID])
+  CHAT_ATTACHMENT          CHAT_ATTACHMENT[]
+}
+
+model CHAT_ATTACHMENT {
+  ID              Int      @id @unique @default(sequence())
+  CHAT_MESSAGE_ID Int
+  FILE_NAME       String
+  FILE_PATH       String
+  FILE_TYPE       String
+  IS_ACTIVE       Boolean
+  CREATE_DATETIME DateTime @default(now())
+  MODIFY_DATETIME DateTime @updatedAt
+
+  CHAT_MESSAGE CHAT_MESSAGE @relation(fields: [CHAT_MESSAGE_ID], references: [ID])
+}

@@ -1,0 +1,17 @@
+.summary-title{
+    display: block;
+}
+
+.summary-title-mobile {
+    display: none;
+}
+
+@media only screen and (max-width: 	1024px) {
+    .summary-title {
+        display: none;
+    }
+    
+    .summary-title-mobile {
+        display: block;
+    }
+}

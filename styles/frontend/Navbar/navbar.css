@@ -1,0 +1,52 @@
+button:focus {
+    outline: 0;
+}
+
+.border-1 {
+    border: 1px gray solid;
+}
+
+.nav-input
+{
+    border: 1px gray solid;
+}
+.nav-input input {
+    border: none;
+    outline: none;
+}
+.nav-input input:focus {
+    outline: none;
+}
+
+.nav-input .suggestion 
+{
+    border: 1px gray solid;
+}
+
+.nav-input .suggestion li {
+}
+
+.nav-input .suggestion li:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.nav-input .suggestion li img {
+    
+    width: 50px;
+    height: 50px;
+}
+
+
+.sdp {
+    --theme-color: #491D88 !important;
+    --selected-date-color: #eeeeee !important;
+}
+.sdp--square-btn{border-radius: 1rem !important;}
+
+
+.person-btn{width: 30px;height: 30px; border: 1px solid gray; border-radius: 15px;}
+
+.swal-title {
+    font-size: 16px !important;
+}

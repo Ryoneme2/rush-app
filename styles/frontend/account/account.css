@@ -1,0 +1,19 @@
+/* .PhoneInputInput
+{
+    border-radius: 5px !important;
+} */
+
+.account-padding{
+    padding: 0px 0px;
+}
+
+.underline-thickness{
+    text-decoration-line: underline;
+    text-decoration-thickness: 3px;
+}
+
+@media only screen and (max-width: 640px) {
+    .account-padding {
+        padding: 0px 24px;
+    }
+}
