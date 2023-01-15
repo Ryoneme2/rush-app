@@ -32,6 +32,7 @@ export async function getServerSideProps(ctx) {
   // Fetch data from external API
   const { rid } = ctx.query;
 
+  console.time('response time');
   const response = await prisma.rESTAURANT.findFirst({
     where: { ID: parseInt(rid), IS_ACTIVE: true },
     include: {
@@ -57,7 +58,6 @@ export async function getServerSideProps(ctx) {
     },
     orderBy: [{ ID: 'asc' }],
   });
-  await prisma.$disconnect();
 
   const data = JSON.parse(JSON.stringify(response));
 
@@ -94,6 +94,7 @@ export async function getServerSideProps(ctx) {
   });
 
   await prisma.$disconnect();
+  console.timeEnd('response time');
 
   const avaliableTable = JSON.parse(JSON.stringify(responseB));
 
@@ -120,20 +121,12 @@ export async function getServerSideProps(ctx) {
       packages,
       avaliableTable,
       rid,
-      dataTable: data,
       modifiedData,
     },
   };
 }
 
-function Restaurant({
-  data,
-  packages,
-  avaliableTable,
-  rid,
-  dataTable,
-  modifiedData,
-}) {
+function Restaurant({ data, packages, avaliableTable, rid, modifiedData }) {
   const MySwal = withReactContent(Swal);
 
   const router = useRouter();
