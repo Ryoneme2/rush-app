@@ -2,15 +2,16 @@ import { PrismaClient } from "@prisma/client";
 import { NextRouter, useRouter } from "next/router";
 import nextConnect from "next-connect";
 import authMiddleware from "pages/api/utils/verify.middlewere";
+import { NextRequest, NextResponse } from "next/server";
 const prisma = new PrismaClient();
 
-export async function upsertRestaurantMember(req, res) {
+export async function upsertRestaurantMember(req: any, res: any) {
   const data = req.body;
 
   // const idAccountProfile = 1;
 
   const response = await Promise.all(
-    data.map(async (data) => {
+    data.map(async (data: any) => {
       const responseRestauarant = await prisma.rESTAURANT.upsert({
         where: { ID: data.id ?? 0 },
         update: {

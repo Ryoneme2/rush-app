@@ -2,27 +2,36 @@ FROM --platform=linux/amd64 node:16-alpine3.16 AS deps
 # RUN apk add --no-cache libc6-compat openssl1.1-compat
 WORKDIR /app
 
+# Install Prisma Client - remove if not using Prisma
+
+COPY prisma ./
+COPY tsconfig.json ./
+
 # Install dependencies based on the preferred package manager
 
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml\* ./
+COPY package.json yarn.lock*  ./
 
-RUN yarn --frozen-lockfile
+RUN yarn --frozen-lockfile;
+
+RUN npx prisma generate
 
 ##### BUILDER
 
 FROM --platform=linux/amd64 node:16-alpine3.16 AS builder
-# ARG DATABASE_URL
+ARG DATABASE_URL
 ARG NEXT_PUBLIC_CLIENTVAR
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/tsconfig.json ./
 COPY . .
 
-# ENV NEXT_TELEMETRY_DISABLED 1
-RUN npx prisma generate
+ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN yarn --frozen-lockfile;
 
 RUN yarn run build
 
-RUN yarn --frozen-lockfile
+##### RUNNER
 
 FROM --platform=linux/amd64 node:16-alpine3.16 AS runner
 WORKDIR /app
@@ -57,26 +66,20 @@ ENV GOOGLE_CLIENT_ID = 1092820790605-1scci8f11fl9k75qitst25ff7old7o3j.apps.googl
 ENV GOOGLE_CLIENT_SECRET = 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
 ENV GOOGLE_PROVIDER_ID = 1 
 
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# You only need to copy next.config.js if you are NOT using the default configuration
-# COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/next.config.mjs ./
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
 USER nextjs
-
-# EXPOSE 80 443
 EXPOSE 3000
+ENV PORT 3000
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry.
-# ENV NEXT_TELEMETRY_DISABLED 
-RUN yarn prisma generate
+CMD ["node", "server.js"]
 
-
-CMD ["yarn", "start"]
+# CMD ["yarn", "start"]

@@ -18,9 +18,8 @@ export default function RestaurantCard({
   return (
     <div className='relative flex flex-col restaurant-card max-w-xl mb-12 cursor-pointer mx-auto w-full'>
       <Link href={linkpath}>
-        <a>
-          <div className='mb-6 w-full'>
-            {/* <Swiper
+        <div className='mb-6 w-full'>
+          {/* <Swiper
                     spaceBetween={0}
                     slidesPerView={1}
                 >
@@ -31,28 +30,27 @@ export default function RestaurantCard({
                     }
 
                 </Swiper> */}
-            <img
-              src={images[0].FILE_PATH}
-              alt='Restaurant Image'
-              className='mx-auto rounded-lg w-full h-56'
-            />
-          </div>
+          <img
+            src={images[0].FILE_PATH}
+            alt='Restaurant Image'
+            className='mx-auto rounded-lg w-full h-56'
+          />
+        </div>
 
-          <div>
-            <span className='font-bold'>
-              {resName}
-              {fixDate && ` วันที่ ${dayjs(fixDate).format('DD/MM/YYYY')}`}
-            </span>
-            <div className='flex space-x-2 items-center'>
-              <div className='text-secondary'>
-                <i className='fas fa-map-marker-alt'></i>
-              </div>
-              <div>
-                <p>{resLocation}</p>
-              </div>
+        <div>
+          <span className='font-bold'>
+            {resName}
+            {fixDate && ` วันที่ ${dayjs(fixDate).format('DD/MM/YYYY')}`}
+          </span>
+          <div className='flex space-x-2 items-center'>
+            <div className='text-secondary'>
+              <i className='fas fa-map-marker-alt'></i>
+            </div>
+            <div>
+              <p>{resLocation}</p>
             </div>
           </div>
-        </a>
+        </div>
       </Link>
     </div>
   );

@@ -404,13 +404,11 @@ export default function Navbar() {
       <nav className='top-0 z-50 w-full flex items-center px-6 pt-7 bg-white '>
         <div className='container mx-auto flex flex-col lg:flex-row items-center '>
           <div className='w-full relative hidden lg:flex justify-between lg:w-auto lg:static lg:justify-start mr-10'>
-            <Link href='/'>
-              <a
-                className='text-3xl font-bold leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase text-primary'
-                href='#pablo'
-              >
-                RUSH
-              </a>
+            <Link
+              href='/'
+              className='text-3xl font-bold leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase text-primary'
+            >
+              RUSH
             </Link>
 
             {/* <button

@@ -210,6 +210,8 @@ function Restaurant({
   const { data: session } = useSession() as {
     data: Session & {
       tokenUser: string;
+      fname: string;
+      lname: string;
     };
   };
   const [a, setA] = useState(modifiedData);
