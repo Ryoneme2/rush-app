@@ -73,6 +73,8 @@ export default function Login({ providers, csrfToken, pathType }) {
       password: data.password,
     });
 
+    console.log(res);
+
     if (res?.error) {
       mySwal.fire({
         title: 'Error',
@@ -84,10 +86,13 @@ export default function Login({ providers, csrfToken, pathType }) {
     } else {
       setError(null);
     }
+
     if (
       (pathType == 'admin' && dataRole.ACCOUNT_TYPE_ID == 2) ||
       dataRole.ACCOUNT_TYPE_ID == 3
     ) {
+      console.log('pushing to ' + '/' + pathType + '/dashboard');
+
       router.push({
         pathname: '/' + pathType + '/dashboard',
       });

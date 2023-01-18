@@ -5,9 +5,7 @@ import { getSession } from "next-auth/react";
 const authMiddleware = async (req, res, next) => {
   try {
 
-
-    const session = await getSession({ req });;
-
+    const session = await getSession({ req });
 
     if (req.headers.authorization) {
       const secretKey: string = process.env.JWT_SECRET;

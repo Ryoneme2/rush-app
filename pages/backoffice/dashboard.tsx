@@ -25,6 +25,7 @@ import Swal from 'sweetalert2';
 import { verify } from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { Session } from 'next-auth';
+import Cookie from 'js-cookie';
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -34,12 +35,17 @@ export async function getServerSideProps(context) {
     lname: string;
   };
 
+  console.log({ session });
+
   if (!session) {
+    console.log('session', session);
+
     return { redirect: { destination: '/auth/backoffice' } };
   }
 
   const secretKey: string = process.env.JWT_SECRET;
-  const user = verify(session.tokenUser, secretKey);
+  const token = Cookie.get('next-auth.session-token');
+  const user = verify(token, secretKey);
   const accountTypeId = await prisma.aCCOUNT_TYPE.findFirst({
     where: { NAME: process.env.TYPE_ADMIN_NAME },
   });
