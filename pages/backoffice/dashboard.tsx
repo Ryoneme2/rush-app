@@ -44,8 +44,9 @@ export async function getServerSideProps(context) {
   }
 
   const secretKey: string = process.env.JWT_SECRET;
-  const token = Cookie.get('next-auth.session-token');
-  const user = verify(token, secretKey);
+  // const token = Cookie.get('next-auth.session-token');
+  const user = verify(session.tokenUser, secretKey);
+  // console.log({ user });
   const accountTypeId = await prisma.aCCOUNT_TYPE.findFirst({
     where: { NAME: process.env.TYPE_ADMIN_NAME },
   });
@@ -53,7 +54,7 @@ export async function getServerSideProps(context) {
   // เลือกทุก property
   const res = await prisma.aCCOUNT_PROFILE.findFirst({
     where: {
-      ID: parseInt(user.ID),
+      ID: +user.id,
       ACCOUNT_TYPE_ID: accountTypeId.ID,
     },
   });
@@ -61,6 +62,7 @@ export async function getServerSideProps(context) {
   await prisma.$disconnect();
 
   const dataRole = await JSON.parse(JSON.stringify(res));
+  console.log({ dataRole });
 
   if (!dataRole) {
     return { redirect: { destination: '/' } };

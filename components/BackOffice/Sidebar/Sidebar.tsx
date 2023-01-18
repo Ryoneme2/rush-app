@@ -21,13 +21,11 @@ export default function Sidebar() {
             <i className='fas fa-bars'></i>
           </button>
           {/* Brand */}
-          <Link href='/'>
-            <a
-              href='#pablo'
-              className='md:block text-left md:pb-2 text-blueGray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0'
-            >
-              RUSH BackOffice
-            </a>
+          <Link
+            href='#pablo'
+            className='md:block text-left md:pb-2 text-blueGray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0'
+          >
+            RUSH BackOffice
           </Link>
           {/* User */}
           <ul className='md:hidden items-center flex flex-wrap list-none'>
@@ -66,51 +64,46 @@ export default function Sidebar() {
 
             <ul className='md:flex-col md:min-w-full flex flex-col list-none'>
               <li className='items-center'>
-                <Link href='/backoffice/dashboard'>
-                  <a
-                    href='#pablo'
+                <Link
+                  href='/backoffice/dashboard'
+                  className={
+                    'text-xs uppercase py-3 font-bold block ' +
+                    (router.pathname.indexOf('/backoffice/dashboard') !== -1
+                      ? 'text-sky-500 hover:text-sky-600'
+                      : 'text-blueGray-700 hover:text-blueGray-500')
+                  }
+                >
+                  <i
                     className={
-                      'text-xs uppercase py-3 font-bold block ' +
+                      'fas fa-tv mr-2 text-sm ' +
                       (router.pathname.indexOf('/backoffice/dashboard') !== -1
-                        ? 'text-sky-500 hover:text-sky-600'
-                        : 'text-blueGray-700 hover:text-blueGray-500')
+                        ? 'opacity-75'
+                        : 'text-blueGray-300')
                     }
-                  >
-                    <i
-                      className={
-                        'fas fa-tv mr-2 text-sm ' +
-                        (router.pathname.indexOf('/backoffice/dashboard') !== -1
-                          ? 'opacity-75'
-                          : 'text-blueGray-300')
-                      }
-                    ></i>{' '}
-                    DashBoard
-                  </a>
+                  ></i>{' '}
+                  DashBoard
                 </Link>
               </li>
 
               <li className='items-center'>
-                <Link href='/backoffice/restaurant'>
-                  <a
-                    href='#pablo'
+                <Link
+                  href='/backoffice/restaurant'
+                  className={
+                    'text-xs uppercase py-3 font-bold block ' +
+                    (router.pathname.indexOf('/backoffice/restaurant') !== -1
+                      ? 'text-sky-500 hover:text-sky-600'
+                      : 'text-blueGray-700 hover:text-blueGray-500')
+                  }
+                >
+                  <i
                     className={
-                      'text-xs uppercase py-3 font-bold block ' +
+                      'fas fa-store-alt mr-2 text-sm ' +
                       (router.pathname.indexOf('/backoffice/restaurant') !== -1
-                        ? 'text-sky-500 hover:text-sky-600'
-                        : 'text-blueGray-700 hover:text-blueGray-500')
+                        ? 'opacity-75'
+                        : 'text-blueGray-300')
                     }
-                  >
-                    <i
-                      className={
-                        'fas fa-store-alt mr-2 text-sm ' +
-                        (router.pathname.indexOf('/backoffice/restaurant') !==
-                        -1
-                          ? 'opacity-75'
-                          : 'text-blueGray-300')
-                      }
-                    ></i>{' '}
-                    Restaurant
-                  </a>
+                  ></i>{' '}
+                  Restaurant
                 </Link>
               </li>
               {/* <li className="items-center">
@@ -138,27 +131,24 @@ export default function Sidebar() {
               </li> */}
 
               <li className='items-center'>
-                <Link href='/backoffice/music_style'>
-                  <a
-                    href='#pablo'
+                <Link
+                  href='/backoffice/music_style'
+                  className={
+                    'text-xs uppercase py-3 font-bold block ' +
+                    (router.pathname.indexOf('/backoffice/music_style') !== -1
+                      ? 'text-sky-500 hover:text-sky-600'
+                      : 'text-blueGray-700 hover:text-blueGray-500')
+                  }
+                >
+                  <i
                     className={
-                      'text-xs uppercase py-3 font-bold block ' +
+                      'fas fa-music mr-2 text-sm ' +
                       (router.pathname.indexOf('/backoffice/music_style') !== -1
-                        ? 'text-sky-500 hover:text-sky-600'
-                        : 'text-blueGray-700 hover:text-blueGray-500')
+                        ? 'opacity-75'
+                        : 'text-blueGray-300')
                     }
-                  >
-                    <i
-                      className={
-                        'fas fa-music mr-2 text-sm ' +
-                        (router.pathname.indexOf('/backoffice/music_style') !==
-                        -1
-                          ? 'opacity-75'
-                          : 'text-blueGray-300')
-                      }
-                    ></i>{' '}
-                    Music Style
-                  </a>
+                  ></i>{' '}
+                  Music Style
                 </Link>
               </li>
 
@@ -187,30 +177,27 @@ export default function Sidebar() {
               </li> */}
 
               <li className='items-center'>
-                <Link href='/backoffice/role_management'>
-                  <a
-                    href='#pablo'
+                <Link
+                  href='/backoffice/role_management'
+                  className={
+                    'text-xs uppercase py-3 font-bold block ' +
+                    (router.pathname.indexOf('/backoffice/role_management') !==
+                    -1
+                      ? 'text-sky-500 hover:text-sky-600'
+                      : 'text-blueGray-700 hover:text-blueGray-500')
+                  }
+                >
+                  <i
                     className={
-                      'text-xs uppercase py-3 font-bold block ' +
+                      'fas fa-user-tag mr-2 text-sm ' +
                       (router.pathname.indexOf(
                         '/backoffice/role_management'
                       ) !== -1
-                        ? 'text-sky-500 hover:text-sky-600'
-                        : 'text-blueGray-700 hover:text-blueGray-500')
+                        ? 'opacity-75'
+                        : 'text-blueGray-300')
                     }
-                  >
-                    <i
-                      className={
-                        'fas fa-user-tag mr-2 text-sm ' +
-                        (router.pathname.indexOf(
-                          '/backoffice/role_management'
-                        ) !== -1
-                          ? 'opacity-75'
-                          : 'text-blueGray-300')
-                      }
-                    ></i>{' '}
-                    User Management
-                  </a>
+                  ></i>{' '}
+                  User Management
                 </Link>
               </li>
 
@@ -239,30 +226,27 @@ export default function Sidebar() {
               </li> */}
 
               <li className='items-center'>
-                <Link href='/backoffice/contact_provider'>
-                  <a
-                    href='#pablo'
+                <Link
+                  href='/backoffice/contact_provider'
+                  className={
+                    'text-xs uppercase py-3 font-bold block ' +
+                    (router.pathname.indexOf('/backoffice/contact_provider') !==
+                    -1
+                      ? 'text-sky-500 hover:text-sky-600'
+                      : 'text-blueGray-700 hover:text-blueGray-500')
+                  }
+                >
+                  <i
                     className={
-                      'text-xs uppercase py-3 font-bold block ' +
+                      'fas fa-headset mr-2 text-sm ' +
                       (router.pathname.indexOf(
                         '/backoffice/contact_provider'
                       ) !== -1
-                        ? 'text-sky-500 hover:text-sky-600'
-                        : 'text-blueGray-700 hover:text-blueGray-500')
+                        ? 'opacity-75'
+                        : 'text-blueGray-300')
                     }
-                  >
-                    <i
-                      className={
-                        'fas fa-headset mr-2 text-sm ' +
-                        (router.pathname.indexOf(
-                          '/backoffice/contact_provider'
-                        ) !== -1
-                          ? 'opacity-75'
-                          : 'text-blueGray-300')
-                      }
-                    ></i>{' '}
-                    Contact Provider
-                  </a>
+                  ></i>{' '}
+                  Contact Provider
                 </Link>
               </li>
             </ul>

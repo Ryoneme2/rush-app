@@ -52,60 +52,74 @@ export default function Login({ providers, csrfToken, pathType }) {
   const router = useRouter();
   const [error, setError] = useState(null);
   const [dataRole, setDataRole] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
 
   const onSubmit = async (data) => {
-    if (data.email == '' || data.password == '') {
-      return;
-    }
+    try {
+      setSubmitting(true);
+      if (data.email == '' || data.password == '') {
+        return;
+      }
 
-    const resRole = await fetch(`/api/account_profile/checkrolebyemail`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email: data.email }),
-    });
-    const dataRole = await resRole.json();
-
-    const res = await signIn('credentials', {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-    });
-
-    console.log(res);
-
-    if (res?.error) {
-      mySwal.fire({
-        title: 'Error',
-        text: 'incorrect email or password.',
-        icon: 'error',
-        cancelButtonText: 'close',
+      const resRole = await fetch(`/api/account_profile/checkrolebyemail`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: data.email }),
       });
-      setError(res.error);
-    } else {
-      setError(null);
-    }
+      const dataRole = await resRole.json();
 
-    if (
-      (pathType == 'admin' && dataRole.ACCOUNT_TYPE_ID == 2) ||
-      dataRole.ACCOUNT_TYPE_ID == 3
-    ) {
-      console.log('pushing to ' + '/' + pathType + '/dashboard');
+      const res = await signIn('credentials', {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      });
 
-      router.push({
-        pathname: '/' + pathType + '/dashboard',
-      });
-    } else if (pathType == 'backoffice' && dataRole.ACCOUNT_TYPE_ID == 3) {
-      router.push({
-        pathname: '/' + pathType + '/dashboard',
-      });
-    } else {
-      router.push({
-        pathname: '/access/deny',
-      });
+      if (res?.error) {
+        mySwal.fire({
+          title: 'Error',
+          text: 'incorrect email or password.',
+          icon: 'error',
+          cancelButtonText: 'close',
+        });
+        setError(res.error);
+      } else {
+        setError(null);
+      }
+
+      if (
+        (pathType == 'admin' && dataRole.ACCOUNT_TYPE_ID == 2) ||
+        dataRole.ACCOUNT_TYPE_ID == 3
+      ) {
+        console.log('pushing to ' + '/' + pathType + '/dashboard');
+
+        router.push({
+          pathname: '/' + pathType + '/dashboard',
+        });
+      } else if (pathType == 'backoffice' && dataRole.ACCOUNT_TYPE_ID == 3) {
+        router.push({
+          pathname: '/' + pathType + '/dashboard',
+        });
+      } else {
+        router.push({
+          pathname: '/access/deny',
+        });
+      }
+    } catch (e) {
+      setError('There in Unknown Error');
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  if (submitting) {
+    return (
+      <div className='flex justify-center items-center h-full'>
+        <div className='animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500'></div>
+      </div>
+    );
+  }
 
   if (!session) {
     return (

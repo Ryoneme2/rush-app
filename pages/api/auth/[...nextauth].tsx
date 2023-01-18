@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions, User, Awaitable } from 'next-auth';
+import NextAuth, { NextAuthOptions, User, Awaitable, Session } from 'next-auth';
 import AppleProvider from 'next-auth/providers/apple';
 import FacebookProvider from 'next-auth/providers/facebook';
 import GoogleProvider from 'next-auth/providers/google';
@@ -19,7 +19,7 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: 'Username', type: 'text' },
+        email: { label: 'email', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
@@ -202,20 +202,22 @@ export const authOptions: NextAuthOptions = {
       if (account) {
         // token.accessToken = account.access_token;
         token.user = jwt.sign(user, process.env.JWT_SECRET);
-        token.fname = '';
-        token.lname = '';
+        token.name = user.name;
       }
 
       return Promise.resolve(token);
     },
     async session({ session, token, user }) {
       // Send properties to the client, like an access_token from a provider.
-      token = token.user as JWT;
-      // session.fname = token.fname;
-      // session.lname = token.lname;
+      const x_session = {
+        ...session,
+        tokenUser: token.user,
+        fname: token?.name?.split(' ')[0],
+        lname: token?.name?.split(' ')[1] || '',
+      } as Session;
 
       prisma.$disconnect();
-      return session;
+      return x_session;
     },
   },
 };

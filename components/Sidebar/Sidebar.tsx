@@ -21,13 +21,11 @@ export default function Sidebar() {
             <i className='fas fa-bars'></i>
           </button>
           {/* Brand */}
-          <Link href='/'>
-            <a
-              href='#pablo'
-              className='md:block text-left md:pb-2 text-blueGray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0'
-            >
-              RUSH
-            </a>
+          <Link
+            href='/'
+            className='md:block text-left md:pb-2 text-blueGray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0'
+          >
+            RUSH
           </Link>
           {/* User */}
           <ul className='md:hidden items-center flex flex-wrap list-none'>
@@ -66,50 +64,46 @@ export default function Sidebar() {
 
             <ul className='md:flex-col md:min-w-full flex flex-col list-none'>
               <li className='items-center'>
-                <Link href='/admin/dashboard'>
-                  <a
-                    href='#pablo'
+                <Link
+                  href='/admin/dashboard'
+                  className={
+                    'text-xs uppercase py-3 font-bold block ' +
+                    (router.pathname.indexOf('/admin/dashboard') !== -1
+                      ? 'text-sky-500 hover:text-sky-600'
+                      : 'text-blueGray-700 hover:text-blueGray-500')
+                  }
+                >
+                  <i
                     className={
-                      'text-xs uppercase py-3 font-bold block ' +
+                      'fas fa-tv mr-2 text-sm ' +
                       (router.pathname.indexOf('/admin/dashboard') !== -1
-                        ? 'text-sky-500 hover:text-sky-600'
-                        : 'text-blueGray-700 hover:text-blueGray-500')
+                        ? 'opacity-75'
+                        : 'text-blueGray-300')
                     }
-                  >
-                    <i
-                      className={
-                        'fas fa-tv mr-2 text-sm ' +
-                        (router.pathname.indexOf('/admin/dashboard') !== -1
-                          ? 'opacity-75'
-                          : 'text-blueGray-300')
-                      }
-                    ></i>{' '}
-                    DashBoard
-                  </a>
+                  ></i>{' '}
+                  DashBoard
                 </Link>
               </li>
 
               <li className='items-center'>
-                <Link href='/admin/restaurant'>
-                  <a
-                    href='#pablo'
+                <Link
+                  href='/admin/restaurant'
+                  className={
+                    'text-xs uppercase py-3 font-bold block ' +
+                    (router.pathname.indexOf('/admin/restaurant') !== -1
+                      ? 'text-sky-500 hover:text-sky-600'
+                      : 'text-blueGray-700 hover:text-blueGray-500')
+                  }
+                >
+                  <i
                     className={
-                      'text-xs uppercase py-3 font-bold block ' +
+                      'fas fa-store-alt mr-2 text-sm ' +
                       (router.pathname.indexOf('/admin/restaurant') !== -1
-                        ? 'text-sky-500 hover:text-sky-600'
-                        : 'text-blueGray-700 hover:text-blueGray-500')
+                        ? 'opacity-75'
+                        : 'text-blueGray-300')
                     }
-                  >
-                    <i
-                      className={
-                        'fas fa-store-alt mr-2 text-sm ' +
-                        (router.pathname.indexOf('/admin/restaurant') !== -1
-                          ? 'opacity-75'
-                          : 'text-blueGray-300')
-                      }
-                    ></i>{' '}
-                    Restaurant
-                  </a>
+                  ></i>{' '}
+                  Restaurant
                 </Link>
               </li>
             </ul>
