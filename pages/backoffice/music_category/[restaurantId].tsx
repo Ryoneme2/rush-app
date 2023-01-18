@@ -34,7 +34,7 @@ export async function getServerSideProps(context) {
   // เลือกทุก property
   const res = await prisma.aCCOUNT_PROFILE.findFirst({
     where: {
-      ID: parseInt(user.ID),
+      ID: +user.id,
       ACCOUNT_TYPE_ID: accountTypeId.ID,
     },
   });

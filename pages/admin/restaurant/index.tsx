@@ -38,7 +38,7 @@ export async function getServerSideProps(context) {
   // เลือกทุก property
   const res = await prisma.aCCOUNT_PROFILE.findFirst({
     where: {
-      ID: parseInt(user.ID),
+      ID: +user.id,
       OR: [
         { ACCOUNT_TYPE_ID: adminType.ID },
         { ACCOUNT_TYPE_ID: ownerType.ID },
@@ -59,7 +59,7 @@ export async function getServerSideProps(context) {
     const user = await verify(session.tokenUser, secretKey);
     const response = await prisma.rESTAURANT_MEMBERS.findMany({
       where: {
-        ACCOUNT_PROFILE_ID: parseInt(user.ID),
+        ACCOUNT_PROFILE_ID: +user.id,
         IS_ACTIVE: true,
         RESTAURANT: { IS_ACTIVE: true },
       },

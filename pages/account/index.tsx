@@ -34,7 +34,7 @@ export async function getServerSideProps(context) {
   // console.log('session',user);
 
   const res = await prisma.aCCOUNT_PROFILE.findFirst({
-    where: { ID: parseInt(user.ID) },
+    where: { ID: +user.id },
     include: { ACCOUNT_INTERNAL: true },
   });
   await prisma.$disconnect();
